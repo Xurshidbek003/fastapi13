@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-
 from database import database
 from users import Users
 
