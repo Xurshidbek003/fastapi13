@@ -1,9 +1,11 @@
+from typing import List
 from fastapi import FastAPI, Depends
-from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from database import database
-from users import Users
+from schemas.users import UserModel, UserResponse
+from models.users import Users
+from datetime import datetime
 
 app = FastAPI(title='Imtihon API', docs_url='/')
 
@@ -13,26 +15,21 @@ app.add_middleware(
     allow_methods = ["*"],
 )
 
-class UserModel(BaseModel):
-    name: str
-    age: int = Field(gt=0, lt=100)
-    address: str
-
-
 @app.post('/add')
 def add_user(form: UserModel, db: Session = Depends(database)):
     user = Users(
         name = form.name,
         age = form.age,
         address = form.address,
-        balans = 0
+        balans = 0,
+        birth_date = datetime.now().year - form.age
     )
     db.add(user)
     db.commit()
     return {'message': 'User qoshildi !'}
 
 
-@app.get('/get')
+@app.get('/get', response_model=List[UserResponse])
 def get_user(db: Session = Depends(database)):
     return db.query(Users).all()
 
